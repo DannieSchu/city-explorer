@@ -1627,4 +1627,4 @@ module.exports = {
         'units': 'us'
     },
     'offset': -7
-}
+};

@@ -1,7 +1,9 @@
 const express = require('express');
-const data = require('./geo.js');
+const data = require('./data/geo.js');
+const weather = require('./data/darksky.js');
 const app = express();
-const request = require('superagent');
+
+// const request = require('superagent');
 
 app.get('/location', (request, respond) => {
     const cityData = data.results[0];

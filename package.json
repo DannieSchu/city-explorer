@@ -2,9 +2,13 @@
   "name": "city-explorer",
   "version": "1.0.0",
   "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
   "scripts": {
-    // change this section
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --detectOpenHandles",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "author": "",
   "license": "ISC",

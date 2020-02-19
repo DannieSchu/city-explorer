@@ -1,12 +1,16 @@
 const express = require('express');
-
+const data = require('./geo.js');
 const app = express();
+const request = require('superagent');
 
-app.get('/location', (req, res) => {
-    res.json({
-        some: 'json'
+app.get('/location', (request, respond) => {
+    const cityData = data.results[0];
+
+    respond.json({
+        formatted_query: cityData.formatted_address,
+        latitude: cityData.geometry.location.lat,
+        longitude: cityData.geometry.location.lng
     });
 });
 
-// use this to check that app is up and running
-app.listen(3000, () => { console.log("running...")})
+module.exports = { app };

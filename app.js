@@ -8,11 +8,10 @@ const request = require('superagent');
 // app.use(cors());
 app.get('/', (req, res) => res.send('Hello World!'));
 
-
 let lat;
 let lng;
 
-app.get('/location', async (req, res, next) => {
+app.get('/location', async(req, res, next) => {
     try {
         // get location from query params
         const location = req.query.search;
@@ -37,7 +36,7 @@ app.get('/location', async (req, res, next) => {
     }
 });
 
-const getWeatherData = async (lat, lng, next) => {
+const getWeatherData = async(lat, lng, next) => {
     try {
         const URL = `https://api.darksky.net/forecast/ea00a4754ac9af00b3d8fa931923f3ec/${lat},${lng}?key=${process.env.DARKSKY_API_KEY}`;
 
@@ -54,14 +53,14 @@ const getWeatherData = async (lat, lng, next) => {
     }
 };
 
-app.get('/weather', async (req, res) => {
+app.get('/weather', async(req, res) => {
     const localWeather = await getWeatherData(lat, lng);
 
     res.json(localWeather);
 });
 
 
-const getYelpData = async (lat, lng) => {
+const getYelpData = async(lat, lng) => {
     const URL = `https://api.yelp.com/v3/businesses/search?term=restaurants&latitude=${lat}&longitude=${lng}`;
     const yelp = await request.get(URL).set('Authorization', `Bearer ${process.env.YELP_API_KEY}`);
 
@@ -77,10 +76,34 @@ const getYelpData = async (lat, lng) => {
 };
 
 
-app.get('/yelp', async (req, res) => {
+app.get('/yelp', async(req, res) => {
     const localReviews = await getYelpData(lat, lng);
 
     res.json(localReviews);
+});
+
+const getTrails = async(lat, lng) => {
+    const URL = `https://www.hikingproject.com/data/get-trails?lat=${lat}&lon=${lng}&maxDistance=10&key=${process.env.TRAILS_API_KEY}`;
+    const trailsData = await request.get(URL);
+    return trailsData.body.trails.map(trail => {
+        return {
+            name: trail.name,
+            location: trail.location,
+            length: trail.length,
+            stars: trail.stars,
+            star_votes: trail.starVotes,
+            summary: trail.summary,
+            trail_url: trail.url,
+            conditions: trail.conditionDetails === null ? 'Conditions unknown' : trail.conditionDetails,
+            condition_date: trail.conditionDate.slice(0, 10),
+            condition_time: trail.conditionDate.slice(12) 
+        };
+    });
+};
+
+app.get('/trails', async(req, res) => {
+    const localTrails = await getTrails(lat, lng);
+    res.json(localTrails);
 });
 
 app.get('*', (req, res) => res.send('404!'));

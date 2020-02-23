@@ -1,18 +1,26 @@
+// Load environment variables from .env
 require('dotenv').config();
-const express = require('express');
-// const weather = require('./data/darksky.js');
-const app = express();
-const request = require('superagent');
-// const cors = require('cors');
 
-// app.use(cors());
+// Application Dependencies
+const express = require('express');
+const cors = require('cors');
+
+// Application Setup
+// make an express app (express is middleware that allows us to read incoming data)
+const app = express();
+// "require" will parse JSON
+const request = require('superagent');
+// enable cors
+app.use(cors());
+
+// API Routes
 app.get('/', (req, res) => res.send('Hello World!'));
 
 let lat;
 let lng;
 
 app.get('/location', async (req, res) => {
-    // get location from query params
+    // use express built-in query object to get location from query params
     const location = req.query.search;
     // define URL, passing in API key (from .env) and location as variables
     const URL = `https://us1.locationiq.com/v1/search.php?key=${process.env.GEOCODE_API_KEY}&q=${location}&format=json`;
@@ -32,11 +40,13 @@ app.get('/location', async (req, res) => {
 });
 
 const getWeatherData = async (lat, lng) => {
+    // define URL, passing in API key and latitude and longitude 
     const URL = `https://api.darksky.net/forecast/ea00a4754ac9af00b3d8fa931923f3ec/${lat},${lng}?key=${process.env.DARKSKY_API_KEY}`;
-
+    // get data using URL
     const weather = await request.get(URL);
-
+    // map over weather data
     return weather.daily.data.map(forecast => {
+        // for each forecast, return date and summary
         return {
             forecast: forecast.summary,
             time: new Date(forecast.time * 1000)
@@ -61,11 +71,11 @@ const getYelpData = async (lat, lng) => {
 
     return yelp.body.businesses.map(business => {
         return {
-            rating: business.rating,
             name: business.alias,
+            image: business.image_url,
+            rating: business.rating,
             price: business.price,
-            url: business.url,
-            image: business.image_url
+            url: business.url
         };
     });
 };
@@ -116,9 +126,9 @@ const getEvents = async (lat, lng) => {
     const events = JSON.parse(eventsData.text);
     return events.events.event.map(event => {
         return {
-            link: event.url,
             name: event.title,
-            event_date: event.start_time,
+            link: event.url,
+            event_date: event.start_time.slice(0, 10),
             summary: event.description === null ? 'No description' : event.description
         };
     });

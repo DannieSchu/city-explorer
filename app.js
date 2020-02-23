@@ -19,7 +19,7 @@ app.get('/', (req, res) => res.send('Hello World!'));
 let lat;
 let lng;
 
-app.get('/location', async (req, res) => {
+app.get('/location', async(req, res) => {
     // use express built-in query object to get location from query params
     const location = req.query.search;
     // define URL, passing in API key (from .env) and location as variables
@@ -39,13 +39,13 @@ app.get('/location', async (req, res) => {
     });
 });
 
-const getWeatherData = async (lat, lng) => {
-    // define URL, passing in API key and latitude and longitude 
-    const URL = `https://api.darksky.net/forecast/ea00a4754ac9af00b3d8fa931923f3ec/${lat},${lng}?key=${process.env.DARKSKY_API_KEY}`;
+const getWeatherData = async(lat, lng) => {
+    // store URL, passing in API key and latitude and longitude 
+    const URL = `https://api.darksky.net/forecast/${process.env.DARKSKY_API_KEY}/${lat},${lng}`;
     // get data using URL
     const weather = await request.get(URL);
     // map over weather data
-    return weather.daily.data.map(forecast => {
+    return weather.body.daily.data.map(forecast => {
         // for each forecast, return date and summary
         return {
             forecast: forecast.summary,
@@ -54,7 +54,7 @@ const getWeatherData = async (lat, lng) => {
     });
 };
 
-app.get('/weather', async (req, res, next) => {
+app.get('/weather', async(req, res, next) => {
     try {
         const localWeather = await getWeatherData(lat, lng);
 
@@ -65,7 +65,7 @@ app.get('/weather', async (req, res, next) => {
 });
 
 
-const getYelpData = async (lat, lng) => {
+const getYelpData = async(lat, lng) => {
     const URL = `https://api.yelp.com/v3/businesses/search?term=restaurants&latitude=${lat}&longitude=${lng}`;
     const yelp = await request.get(URL).set('Authorization', `Bearer ${process.env.YELP_API_KEY}`);
 
@@ -81,7 +81,7 @@ const getYelpData = async (lat, lng) => {
 };
 
 
-app.get('/yelp', async (req, res, next) => {
+app.get('/yelp', async(req, res, next) => {
     try {
         const localReviews = await getYelpData(lat, lng);
 
@@ -91,7 +91,7 @@ app.get('/yelp', async (req, res, next) => {
     }
 });
 
-const getTrails = async (lat, lng) => {
+const getTrails = async(lat, lng) => {
     const URL = `https://www.hikingproject.com/data/get-trails?lat=${lat}&lon=${lng}&maxDistance=10&key=${process.env.TRAILS_API_KEY}`;
     const trailsData = await request.get(URL);
     return trailsData.body.trails.map(trail => {
@@ -110,7 +110,7 @@ const getTrails = async (lat, lng) => {
     });
 };
 
-app.get('/trails', async (req, res, next) => {
+app.get('/trails', async(req, res, next) => {
     try {
         const localTrails = await getTrails(lat, lng);
         res.json(localTrails);
@@ -119,7 +119,7 @@ app.get('/trails', async (req, res, next) => {
     }
 });
 
-const getEvents = async (lat, lng) => {
+const getEvents = async(lat, lng) => {
     const URL = `http://api.eventful.com/json/events/search?app_key=${process.env.EVENTS_API_KEY}
     &where=${lat},${lng}&within=25&page_size=20&page_number=1`;
     const eventsData = await request.get(URL);
@@ -134,7 +134,7 @@ const getEvents = async (lat, lng) => {
     });
 };
 
-app.get('/events', async (req, res, next) => {
+app.get('/events', async(req, res, next) => {
     try {
         const localEvents = await getEvents(lat, lng);
         res.json(localEvents);
